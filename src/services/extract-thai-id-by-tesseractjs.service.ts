@@ -31,10 +31,9 @@ export async function extractThaiIdByTesseractJs(body: ExtractThaiIdDataReqDTO):
         } else return undefined;
     })();
 
-    const worker = await createWorker(lang, oem);
+    const worker = await createWorker(lang, oem,);
 
     const psmEnumValue = PSM[Object.keys(PSM).find(key => PSM[key as keyof typeof PSM] === psm.toString()) as keyof typeof PSM];
-
     await worker.setParameters({
         tessedit_pageseg_mode: psmEnumValue,
         user_defined_dpi: dpi?.toString(),
