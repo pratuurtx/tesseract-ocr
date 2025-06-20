@@ -6,7 +6,9 @@
             "use": "@vercel/node",
             "config": {
                 "includeFiles": [
-                    "dist/**"
+                    "node_modules/tesseract.js-core/tesseract-core.wasm",
+                    "node_modules/tesseract.js-core/tesseract-core-simd.wasm",
+                    "node_modules/tesseract.js-core/tesseract-core.worker.js"
                 ]
             }
         }
