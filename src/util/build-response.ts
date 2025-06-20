@@ -7,8 +7,6 @@ export function successResponse<T>(res: ServerResponse, message: string, data?: 
         message: message,
         data: data,
     }
-    console.log("api", apiResponse);
-    console.log("data", data);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify(apiResponse));

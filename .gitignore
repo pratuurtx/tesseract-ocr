@@ -40,3 +40,6 @@ pids
 
 # Windows system files
 Thumbs.db
+
+tha.traineddata
+eng.traineddata

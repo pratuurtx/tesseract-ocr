@@ -1,0 +1,1 @@
+export * from "./extract-thai-id-by-tesseractjs.service";
