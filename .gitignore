@@ -29,7 +29,6 @@ pids
 *.tsbuildinfo
 
 # Environment variables
-.env
 .env.*.local
 
 # VSCode settings
@@ -40,3 +39,6 @@ pids
 
 # Windows system files
 Thumbs.db
+
+vercel.json
+.vercel
