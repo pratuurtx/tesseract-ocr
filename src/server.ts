@@ -17,9 +17,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     loggerMiddleware(req, res);
     const { url, method } = req;
 
+    if (method === "OPTIONS") {
+        setCorsHeaders(req, res);
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     if (!method || !ALLOW_METHODS.includes(method)) {
         return methodNotAllowedResponse(res, [`${method} was Not Allowed`]);
     }
+
+    setCorsHeaders(req, res);
 
     const xApiKey = (() => process.env.X_API_KEY)();
     if (!xApiKey) {
@@ -29,14 +38,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const xApiKeyReq = req.headers["x-api-key"];
     if (xApiKeyReq !== xApiKey) {
         return forbiddenResponse(res, [`Some header is required`]);
-    }
-
-    setCorsHeaders(req, res);
-
-    if (method === "OPTIONS") {
-        res.writeHead(204);
-        res.end();
-        return;
     }
 
     if (method === "GET" && url === "/health") {
