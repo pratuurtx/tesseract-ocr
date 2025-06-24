@@ -30,15 +30,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (xApiKeyReq !== xApiKey) {
         return forbiddenResponse(res, [`Some header is required`]);
     }
-    
+
+    setCorsHeaders(req, res);
+
     if (method === "OPTIONS") {
-        setCorsHeaders(req, res);
         res.writeHead(204);
         res.end();
         return;
     }
-
-    setCorsHeaders(req, res);
 
     if (method === "GET" && url === "/health") {
         return successResponse<string>(res, "Success", "OK");
