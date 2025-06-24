@@ -5,6 +5,9 @@ export function setCorsHeaders(req: IncomingMessage, res: ServerResponse) {
     const origin = req.headers.origin;
     const allowedOrigins = (() => process.env.ALLOWED_ORIGINS?.split(",") || ["*"])();
     const allowedHeaders = (() => process.env.ALLOWED_HEADERS?.split(",") || ["Content-Type", "Authorization", "x-api-key"])();
+
+    console.log("allowedOrigins", allowedOrigins)
+    console.log("allowedHeaders", allowedHeaders)
     if (origin && allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
