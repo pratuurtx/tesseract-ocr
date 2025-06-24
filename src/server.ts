@@ -1,6 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import {
     badRequestResponse,
+    forbiddenResponse,
+    internalServerErrorResponse,
     methodNotAllowedResponse,
     notFoundResponse,
     parseRequestBody,
@@ -19,6 +21,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         return methodNotAllowedResponse(res, [`${method} was Not Allowed`]);
     }
 
+    const xApiKey = (() => process.env.X_API_KEY)();
+    if (!xApiKey) {
+        return internalServerErrorResponse(res, []);
+    }
+
+    const xApiKeyReq = req.headers["x-api-key"];
+    if (xApiKeyReq !== xApiKey) {
+        return forbiddenResponse(res, [`Some header is required`]);
+    }
+    
     if (method === "OPTIONS") {
         setCorsHeaders(req, res);
         res.writeHead(204);
@@ -32,7 +44,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         return successResponse<string>(res, "Success", "OK");
     }
 
-    if (method === "POST" && url === "/api/tesseract-js/thai-id") {
+    if (method === "POST" && url === "/api/ocr/thai-id") {
         try {
             const body = await parseRequestBody(req);
             const parsedBody = body ? JSON.parse(body) : {};

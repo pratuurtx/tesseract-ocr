@@ -51,3 +51,19 @@ export function methodNotAllowedResponse(
 ) {
     errorResponse(res, 405, errors, message);
 }
+
+export function internalServerErrorResponse(
+    res: ServerResponse,
+    errors: string[],
+    message: string = "Internal Server Error",
+) {
+    errorResponse(res, 500, errors, message);
+}
+
+export function forbiddenResponse(
+    res: ServerResponse,
+    errors: string[],
+    message: string = "Forbidden",
+) {
+    errorResponse(res, 403, errors, message);
+}
