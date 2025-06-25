@@ -93,17 +93,65 @@ const thaiMonthsMap: Record<string, number> = {
     "ก.ค.": 7, "ส.ค.": 8, "ก.ย.": 9, "ต.ค.": 10, "พ.ย.": 11, "ธ.ค.": 12,
 };
 
+const thaiMonthCorrections: Record<string, string> = {
+    "พ.ุย.": "พ.ย.",
+    "พ.ย": "พ.ย.",     // missing dot
+    "พ.ญ.": "พ.ย.",    // common typo
+    "พ.ยู.": "พ.ย.",
+    "พ.ุย": "พ.ย.",
+
+    "มี.ีค.": "มี.ค.",
+    "มีค.": "มี.ค.",
+    "มี.ค": "มี.ค.",
+
+    "ม.ย.": "เม.ย.",
+    "เม.ฤ.": "เม.ย.",
+    "เมย.": "เม.ย.",
+
+    "ก.พ.": "ก.พ.",
+    "กพ.": "ก.พ.",
+    "ก.ฟ.": "ก.พ.",
+
+    "มิ.ย.": "มิ.ย.",
+    "มิย.": "มิ.ย.",
+
+    "ก.ค.": "ก.ค.",
+    "กค.": "ก.ค.",
+
+    "ส.ค.": "ส.ค.",
+    "สค.": "ส.ค.",
+
+    "ก.ย.": "ก.ย.",
+    "กย.": "ก.ย.",
+
+    "ต.ค.": "ต.ค.",
+    "ตค.": "ต.ค.",
+
+    "ธ.ค.": "ธ.ค.",
+    "ธค.": "ธ.ค.",
+};
+
+
 function parseThaiDate(thaiDateStr: string): Date | null {
     const m = thaiDateStr.match(/(\d{1,2})\s+([ก-ฮ\.]+)\s+(\d{4})/);
     if (!m) return null;
+
     const day = parseInt(m[1], 10);
-    const month = thaiMonthsMap[m[2]];
+    let monthStr = m[2];
+
+    if (thaiMonthCorrections[monthStr]) {
+        monthStr = thaiMonthCorrections[monthStr];
+    }
+
+    const month = thaiMonthsMap[monthStr];
     if (!month) return null;
+
     const yearBE = parseInt(m[3], 10);
     const year = yearBE - 543;
 
     return new Date(year, month - 1, day);
 }
+
 
 function parseEnglishDate(engDateStr: string): Date | null {
     const cleaned = engDateStr.replace(/\./g, "");
@@ -232,22 +280,22 @@ function extractNameInfo(ocrText: string): ExtractedName {
         }
     }
 
-for (const line of lines) {
-    if (!nameEn && /name/i.test(line)) {
-        const match = line.match(/name\s*(Mr\.|Mrs\.|Ms\.)?\s*([a-zA-Z]+)/i);
-        if (match) {
-            prefixEn = match[1] || null;
-            nameEn = match[2];
+    for (const line of lines) {
+        if (!nameEn && /name/i.test(line)) {
+            const match = line.match(/name\s*(Mr\.|Mrs\.|Ms\.)?\s*([a-zA-Z]+)/i);
+            if (match) {
+                prefixEn = match[1] || null;
+                nameEn = match[2];
+            }
         }
-    }
 
-    if (!lastNameEn && /last[\s-]*name/i.test(line)) {
-        const match = line.match(/last[\s-]*name\s*([a-zA-Z]+)/i);
-        if (match) {
-            lastNameEn = match[1];
+        if (!lastNameEn && /last[\s-]*name/i.test(line)) {
+            const match = line.match(/last[\s-]*name\s*([a-zA-Z]+)/i);
+            if (match) {
+                lastNameEn = match[1];
+            }
         }
     }
-}
 
 
     if (prefixTh && prefixEn) {
