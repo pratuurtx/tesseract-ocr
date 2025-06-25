@@ -181,6 +181,20 @@ function extractNameInfo(ocrText: string): ExtractedName {
     const TH_NAME_PATTERN = /[ชซ]([ืีิ]?)[อื่]ตัว(และ)?[ชซ][ืีิ]?[อื่]ส[ลก]ุล\s+(.+)/;
 
     for (const line of lines) {
+        // Check if line contains "WIE" (นาย) indicating a Thai name
+        if (line.includes("WIE")) {
+            const thaiOnly = extractThaiTextOnly(line.replace("WIE", ""));
+            const nameParts = thaiOnly.trim().split(/\s+/).filter(Boolean);
+
+            if (nameParts.length >= 2) {
+                prefixTh = "นาย"; // Since "WIE" = นาย (Mr.)
+                nameTh = nameParts[0]; // First Thai word after WIE = first name
+                lastNameTh = nameParts[1]; // Second Thai word = last name
+            }
+            break;
+        }
+
+        // Original Thai pattern matching (unchanged)
         const match = line.match(TH_NAME_PATTERN);
         if (match) {
             const nameParts = extractThaiTextOnly(match[3]).split(/\s+/).filter(Boolean);
@@ -196,6 +210,7 @@ function extractNameInfo(ocrText: string): ExtractedName {
             break;
         }
 
+        // Fallback if "และ" is found (unchanged)
         if (line.includes("และ")) {
             const thaiOnly = extractThaiTextOnly(line);
             const parts = thaiOnly.split(/\s+/).filter(Boolean);
@@ -213,23 +228,35 @@ function extractNameInfo(ocrText: string): ExtractedName {
     }
 
     for (const line of lines) {
-        if (!nameEn && /^Name\s+/i.test(line)) {
-            const name = extractEnglishTextOnly(line.replace(/^Name\s*/i, ""));
+        if (!nameEn && /name/i.test(line)) {
+            const cleaned = line
+                .replace(/^.*?(name).*?$/i, "$2") // Isolates text after "name"
+                .replace(/^[^a-zA-Z]*/, "")       // Removes leading non-letters
+                .trim();
+
+            const name = extractEnglishTextOnly(cleaned);
             const parts = name.split(/\s+/).filter(Boolean);
+
             if (parts.length >= 2 && prefixMap[parts[0]]) {
-                prefixEn = parts[0];
-                nameEn = parts[1];
+                prefixEn = parts[0]; // e.g., "Mr.", "Mrs."
+                nameEn = parts[1];   // e.g., "Ferby"
             } else if (parts.length >= 1) {
                 prefixEn = null;
-                nameEn = parts[0];
+                nameEn = parts[0];    // e.g., "Ferby"
             }
         }
 
-        if (!lastNameEn && /^Last\s+name\s*/i.test(line)) {
-            const lname = extractEnglishTextOnly(line.replace(/^Last\s+name\s*/i, ""));
+        if (!lastNameEn && /last[\s-]*name/i.test(line)) {
+            const cleaned = line
+                .replace(/^.*?(last[\s-]*name).*?$/i, "$2") // Isolates text after "lastname"
+                .replace(/^[^a-zA-Z]*/, "")                 // Removes leading non-letters
+                .trim();
+
+            const lname = extractEnglishTextOnly(cleaned);
             const parts = lname.split(/\s+/).filter(Boolean);
+
             if (parts.length > 0) {
-                lastNameEn = parts[0];
+                lastNameEn = parts[0]; // e.g., "Gasling"
             }
         }
     }
