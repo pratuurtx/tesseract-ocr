@@ -181,15 +181,20 @@ function extractNameInfo(ocrText: string): ExtractedName {
     const TH_NAME_PATTERN = /[ชซ]([ืีิ]?)[อื่]ตัว(และ)?[ชซ][ืีิ]?[อื่]ส[ลก]ุล\s+(.+)/;
 
     for (const line of lines) {
-        // Check if line contains "WIE" (นาย) indicating a Thai name
         if (line.includes("WIE")) {
-            const thaiOnly = extractThaiTextOnly(line.replace("WIE", ""));
-            const nameParts = thaiOnly.trim().split(/\s+/).filter(Boolean);
+            // Split the line at "WIE" and take the part after it
+            const partsAfterWie = line.split("WIE")[1];
+            const thaiOnly = extractThaiTextOnly(partsAfterWie).trim();
+            const nameParts = thaiOnly.split(/\s+/).filter(Boolean);
 
             if (nameParts.length >= 2) {
-                prefixTh = "นาย"; // Since "WIE" = นาย (Mr.)
-                nameTh = nameParts[0]; // First Thai word after WIE = first name
-                lastNameTh = nameParts[1]; // Second Thai word = last name
+                prefixTh = "นาย"; // "WIE" = นาย (Mr.)
+                nameTh = nameParts[0]; // เฟอบี้ (first name)
+                lastNameTh = nameParts[1]; // แกสลิ่ง (last name)
+            } else if (nameParts.length === 1) {
+                prefixTh = "นาย";
+                nameTh = nameParts[0]; // Only a first name (no last name)
+                lastNameTh = null;
             }
             break;
         }
