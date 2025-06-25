@@ -176,12 +176,18 @@ function parseEnglishDate(engDateStr: string): Date | null {
 function extractDob(ocrText: string): string | null {
     const normalizedText = ocrText.replace(/\s+/g, " ");
 
-    const thaiDobMatch = normalizedText.match(/เกิดวันที่\s+(\d{1,2}\s+[ก-ฮ\.]+\s+\d{4})/);
+    const thaiDobMatch = normalizedText.match(
+        /เกิดวันที่\s*(\d{1,2})\s*([ก-ฮ\.\u0E30-\u0E3A\u0E40-\u0E4E]+)\s*(\d{4})/
+    );
     console.log("thai dob match", thaiDobMatch);
     if (thaiDobMatch) {
-        const dateObj = parseThaiDate(thaiDobMatch[1]);
+        const day = thaiDobMatch[1];
+        const monthStr = thaiDobMatch[2];
+        const year = thaiDobMatch[3];
+        const dateObj = parseThaiDate(`${day} ${monthStr} ${year}`);
         if (dateObj) return dateObj.toISOString().slice(0, 10);
     }
+
 
     const engDobMatch = normalizedText.match(/Date of Birth\s+(\d{1,2}\s+[A-Za-z\.]+\s+\d{4})/i);
     if (engDobMatch) {
