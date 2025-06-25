@@ -177,6 +177,7 @@ function extractDob(ocrText: string): string | null {
     const normalizedText = ocrText.replace(/\s+/g, " ");
 
     const thaiDobMatch = normalizedText.match(/เกิดวันที่\s+(\d{1,2}\s+[ก-ฮ\.]+\s+\d{4})/);
+    console.log("thai dob match", thaiDobMatch);
     if (thaiDobMatch) {
         const dateObj = parseThaiDate(thaiDobMatch[1]);
         if (dateObj) return dateObj.toISOString().slice(0, 10);
