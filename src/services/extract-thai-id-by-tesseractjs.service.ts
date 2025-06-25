@@ -132,30 +132,26 @@ const thaiMonthCorrections: Record<string, string> = {
 };
 
 
-function parseThaiDate(thaiDateStr: string): Date | null {
-    const m = thaiDateStr.match(/(\d{1,2})\s+([ก-ฮ\.]+)\s+(\d{4})/);
-    console.log("m", m);
-    if (!m) return null;
+function parseThaiDate(dayStr: string, monthStr: string, yearStr: string): Date | null {
+  const day = parseInt(dayStr, 10);
+  if (isNaN(day) || day < 1 || day > 31) return null;
 
-    const day = parseInt(m[1], 10);
-    console.log("day", day);
-    let monthStr = m[2];
-    console.log("monthStr", monthStr);
+  // Correct month string if needed
+  if (thaiMonthCorrections[monthStr]) {
+    monthStr = thaiMonthCorrections[monthStr];
+  }
 
-    if (thaiMonthCorrections[monthStr]) {
-        monthStr = thaiMonthCorrections[monthStr];
-    }
+  const month = thaiMonthsMap[monthStr];
+  if (!month) return null;
 
-    const month = thaiMonthsMap[monthStr];
-    console.log("month", month);
-    if (!month) return null;
+  const yearBE = parseInt(yearStr, 10);
+  if (isNaN(yearBE)) return null;
 
-    const yearBE = parseInt(m[3], 10);
-    const year = yearBE - 543;
-    console.log("yearBE", yearBE);
-    console.log("year", year);
-    return new Date(year, month - 1, day);
+  const year = yearBE - 543; // convert BE to AD
+
+  return new Date(year, month - 1, day);
 }
+
 
 
 function parseEnglishDate(engDateStr: string): Date | null {
@@ -184,10 +180,9 @@ function extractDob(ocrText: string): string | null {
         const day = thaiDobMatch[1];
         const monthStr = thaiDobMatch[2];
         const year = thaiDobMatch[3];
-        const dateObj = parseThaiDate(`${day} ${monthStr} ${year}`);
+        const dateObj = parseThaiDate(day, monthStr, year);
         if (dateObj) return dateObj.toISOString().slice(0, 10);
     }
-
 
     const engDobMatch = normalizedText.match(/Date of Birth\s+(\d{1,2}\s+[A-Za-z\.]+\s+\d{4})/i);
     if (engDobMatch) {
