@@ -134,21 +134,26 @@ const thaiMonthCorrections: Record<string, string> = {
 
 function parseThaiDate(thaiDateStr: string): Date | null {
     const m = thaiDateStr.match(/(\d{1,2})\s+([ก-ฮ\.]+)\s+(\d{4})/);
+    console.log("m", m);
     if (!m) return null;
 
     const day = parseInt(m[1], 10);
+    console.log("day", day);
     let monthStr = m[2];
+    console.log("monthStr", monthStr);
 
     if (thaiMonthCorrections[monthStr]) {
         monthStr = thaiMonthCorrections[monthStr];
     }
 
     const month = thaiMonthsMap[monthStr];
+    console.log("month", month);
     if (!month) return null;
 
     const yearBE = parseInt(m[3], 10);
     const year = yearBE - 543;
-
+    console.log("yearBE", yearBE);
+    console.log("year", year);
     return new Date(year, month - 1, day);
 }
 
