@@ -232,39 +232,23 @@ function extractNameInfo(ocrText: string): ExtractedName {
         }
     }
 
-    for (const line of lines) {
-        if (!nameEn && /name/i.test(line)) {
-            const cleaned = line
-                .replace(/^.*?(name).*?$/i, "$2") // Isolates text after "name"
-                .replace(/^[^a-zA-Z]*/, "")       // Removes leading non-letters
-                .trim();
-
-            const name = extractEnglishTextOnly(cleaned);
-            const parts = name.split(/\s+/).filter(Boolean);
-
-            if (parts.length >= 2 && prefixMap[parts[0]]) {
-                prefixEn = parts[0]; // e.g., "Mr.", "Mrs."
-                nameEn = parts[1];   // e.g., "Ferby"
-            } else if (parts.length >= 1) {
-                prefixEn = null;
-                nameEn = parts[0];    // e.g., "Ferby"
-            }
-        }
-
-        if (!lastNameEn && /last[\s-]*name/i.test(line)) {
-            const cleaned = line
-                .replace(/^.*?(last[\s-]*name).*?$/i, "$2") // Isolates text after "lastname"
-                .replace(/^[^a-zA-Z]*/, "")                 // Removes leading non-letters
-                .trim();
-
-            const lname = extractEnglishTextOnly(cleaned);
-            const parts = lname.split(/\s+/).filter(Boolean);
-
-            if (parts.length > 0) {
-                lastNameEn = parts[0]; // e.g., "Gasling"
-            }
+for (const line of lines) {
+    if (!nameEn && /name/i.test(line)) {
+        const match = line.match(/name\s*(Mr\.|Mrs\.|Ms\.)?\s*([a-zA-Z]+)/i);
+        if (match) {
+            prefixEn = match[1] || null;
+            nameEn = match[2];
         }
     }
+
+    if (!lastNameEn && /last[\s-]*name/i.test(line)) {
+        const match = line.match(/last[\s-]*name\s*([a-zA-Z]+)/i);
+        if (match) {
+            lastNameEn = match[1];
+        }
+    }
+}
+
 
     if (prefixTh && prefixEn) {
         if (prefixMap[prefixTh] !== prefixEn) {
